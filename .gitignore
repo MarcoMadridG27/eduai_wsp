@@ -1,0 +1,16 @@
+# Node modules
+node_modules/
+
+# WhatsApp session data (contains private keys and credentials)
+.wsp_session/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+
+# Environment variables
+.env
+.env.local

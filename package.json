@@ -1,0 +1,24 @@
+{
+  "name": "eduai-wsp-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp Bot using @whiskeysockets/baileys with session generation",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.9",
+    "pino": "^9.1.0",
+    "pino-pretty": "^11.1.0",
+    "qrcode-terminal": "^0.12.0"
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "baileys",
+    "session"
+  ],
+  "author": "",
+  "license": "ISC"
+}
