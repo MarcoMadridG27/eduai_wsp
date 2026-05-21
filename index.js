@@ -130,24 +130,59 @@ async function startBot() {
                         state.data.tema = messageText;
                         state.step = 'grade';
                         await sock.sendMessage(from, { 
-                            text: '📚 Entendido. Ahora, ¿para qué **grado o año** es la sesión?\n\n_(Ejemplo: "5to de primaria", "3ro de secundaria")_\n\n👉 Escribe *cancelar* si deseas abortar.' 
+                            text: '📚 Entendido. Ahora, ¿para qué **grado o año de secundaria** es la sesión?\n\n_(Ejemplo: "1ro de secundaria", "5to de secundaria")_\n\n👉 Escribe *cancelar* si deseas abortar.' 
                         });
                     } 
                     else if (state.step === 'grade') {
                         state.data.grado = messageText;
                         state.step = 'duration';
                         await sock.sendMessage(from, { 
-                            text: '⏳ Perfecto. Por último, ¿cuál es la **duración** de la sesión?\n\n_(Ejemplo: "90 minutos", "2 horas")_\n\n👉 Escribe *cancelar* si deseas abortar.' 
+                            text: '⏳ Perfecto. ¿Cuál es la **duración** de la sesión?\n\n_(Ejemplo: "90 minutos", "2 horas")_\n\n👉 Escribe *cancelar* si deseas abortar.' 
                         });
                     } 
                     else if (state.step === 'duration') {
                         state.data.duracion = messageText;
+                        state.step = 'competencia';
+                        await sock.sendMessage(from, { 
+                            text: '🎯 Excelente. Ahora selecciona la **Competencia** de Matemática a desarrollar.\n\nEscribe el número correspondiente (1, 2, 3 o 4) o escribe una personalizada:\n\n*1.* Resuelve problemas de cantidad\n*2.* Resuelve problemas de regularidad, equivalencia y cambio\n*3.* Resuelve problemas de forma, movimiento y localización\n*4.* Resuelve problemas de gestión de datos e incertidumbre\n\n👉 Escribe *cancelar* si deseas abortar.' 
+                        });
+                    } 
+                    else if (state.step === 'competencia') {
+                        let competencia = messageText;
+                        if (messageText === '1') competencia = 'Resuelve problemas de cantidad';
+                        else if (messageText === '2') competencia = 'Resuelve problemas de regularidad, equivalencia y cambio';
+                        else if (messageText === '3') competencia = 'Resuelve problemas de forma, movimiento y localización';
+                        else if (messageText === '4') competencia = 'Resuelve problemas de gestión de datos e incertidumbre';
+                        
+                        state.data.competencia = competencia;
+                        state.step = 'contexto';
+                        await sock.sendMessage(from, { 
+                            text: '🌍 Por último, ¿deseas especificar algún **contexto sociocultural o de aula** especial?\n\n_(Ejemplo: "Estudiantes con baja conectividad", "Uso de material didáctico concreto", "Colegio en zona rural")_\n\n👉 Si no deseas agregar contexto, escribe *omitir* o *saltar*.\n👉 Escribe *cancelar* si deseas abortar.' 
+                        });
+                    }
+                    else if (state.step === 'contexto') {
+                        const lowMsg = messageText.toLowerCase();
+                        if (lowMsg === 'omitir' || lowMsg === 'saltar' || lowMsg === 'ninguno' || lowMsg === 'no') {
+                            state.data.contexto = '';
+                        } else {
+                            state.data.contexto = messageText;
+                        }
+
                         const finalData = { ...state.data };
                         delete userStates[from]; // Limpiamos el estado inmediatamente
 
-                        await sock.sendMessage(from, { 
-                            text: `⏳ ¡Excelente! Datos recopilados:\n\n• *Tema:* ${finalData.tema}\n• *Grado:* ${finalData.grado}\n• *Duración:* ${finalData.duracion}\n\nEstoy generando tu **Sesión de Aprendizaje** estructurada con IA alineada al Currículo Nacional Peruano. Esto tardará unos 15-25 segundos. Te enviaré el PDF directamente aquí. 🚀` 
-                        });
+                        let resumen = `⏳ ¡Excelente! Datos recopilados:\n\n`;
+                        resumen += `• *Tema:* ${finalData.tema}\n`;
+                        resumen += `• *Grado:* ${finalData.grado}\n`;
+                        resumen += `• *Duración:* ${finalData.duracion}\n`;
+                        resumen += `• *Competencia:* ${finalData.competencia}\n`;
+                        if (finalData.contexto) {
+                            resumen += `• *Contexto:* ${finalData.contexto}\n`;
+                        }
+
+                        resumen += `\nEstoy generando tu **Sesión de Aprendizaje** de Matemática de secundaria estructurada con IA alineada al Currículo Nacional Peruano. Esto tardará unos 15-25 segundos. Te enviaré el PDF directamente aquí. 🚀`;
+
+                        await sock.sendMessage(from, { text: resumen });
 
                         // Arrancamos el proceso de generación de forma asíncrona
                         generateAndSendSessionPDF(sock, from, pushName, finalData);
@@ -171,14 +206,14 @@ async function startBot() {
                     };
 
                     await sock.sendMessage(from, { 
-                        text: `📝 *Bienvenido al Generador de Sesiones de EduAI* 👋\n\nVamos a armar tu planificación pedagógica paso a paso.\n\n👉 Por favor, responde escribiendo el **Tema o Título** de la sesión:\n_(Ejemplo: "La fotosíntesis", "Ecuaciones cuadráticas", "Comprensión lectora")_` 
+                        text: `📝 *Bienvenido al Generador de Sesiones de EduAI* 👋\n\nVamos a armar tu planificación pedagógica paso a paso.\n\n👉 Por favor, responde escribiendo el **Tema o Título** de la sesión de Matemática:\n_(Ejemplo: "Ecuaciones cuadráticas", "Teorema de Pitágoras", "Funciones trigonométricas")_` 
                     });
                     continue;
                 }
 
                 // Mensaje genérico de bienvenida / instrucciones
                 await sock.sendMessage(from, { 
-                    text: `¡Hola, *${pushName}*! 👋 Bienvenido al bot oficial de *EduAI* en WhatsApp.\n\nTe puedo ayudar a planificar tus clases de forma rápida y profesional alineadas al Currículo Nacional.\n\n💡 Para empezar, simplemente escribe:\n👉 *crear sesion* o *nueva sesion*` 
+                    text: `¡Hola, *${pushName}*! 👋 Bienvenido al bot oficial de *EduAI* en WhatsApp.\n\nTe puedo ayudar a planificar tus clases de *Matemática para secundaria* de forma rápida y profesional, totalmente alineadas al Currículo Nacional.\n\n💡 Para empezar, simplemente escribe:\n👉 *crear sesion* o *nueva sesion*` 
                 });
             }
         } catch (error) {
@@ -207,7 +242,9 @@ async function generateAndSendSessionPDF(sock, to, docenteName, sessionInputs) {
                     duracion: sessionInputs.duracion,
                     docente: docenteName,
                     fecha: sessionInputs.fecha,
-                    titulo: sessionInputs.tema
+                    titulo: sessionInputs.tema,
+                    competenciasSeleccionadas: sessionInputs.competencia ? [sessionInputs.competencia] : [],
+                    contexto: sessionInputs.contexto || ""
                 }
             })
         });
