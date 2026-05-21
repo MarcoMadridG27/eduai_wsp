@@ -1,6 +1,7 @@
 import makeWASocket, { 
     useMultiFileAuthState, 
-    DisconnectReason 
+    DisconnectReason,
+    fetchLatestBaileysVersion
 } from '@whiskeysockets/baileys';
 import pino from 'pino';
 import qrcode from 'qrcode-terminal';
@@ -32,11 +33,23 @@ async function startBot() {
     // 1. Obtener el estado de autenticación (sesión persistente en .wsp_session)
     const { state, saveCreds } = await useMultiFileAuthState('.wsp_session');
 
+    // Obtener la versión de WhatsApp Web más reciente para evitar el error 405 (Connection Failure)
+    let version = [2, 3000, 1017531287]; // Versión de respaldo robusta
+    try {
+        const latest = await fetchLatestBaileysVersion();
+        version = latest.version;
+        logger.info(`Versión de WhatsApp Web obtenida con éxito: v${version.join('.')}`);
+    } catch (err) {
+        logger.warn(`No se pudo obtener la versión de WhatsApp Web actual en tiempo real. Usando versión de respaldo: v${version.join('.')}`);
+    }
+
     // 2. Inicializar la conexión del socket de WhatsApp
     const sock = makeWASocket({
+        version,
         auth: state,
         printQRInTerminal: false,
         logger: pino({ level: 'silent' }),
+        browser: ['Ubuntu', 'Chrome', '20.0.04']
     });
 
     // 3. Registrar eventos de actualización de credenciales
