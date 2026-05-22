@@ -2,6 +2,12 @@
 
 Este proyecto es un bot de WhatsApp modular construido con `@whiskeysockets/baileys` que permite generar y gestionar sesiones persistentes de WhatsApp Web.
 
+## 📱 Número Oficial del Bot
+
+El asistente de IA se ejecuta activamente en el siguiente número oficial:
+- **Número**: `+51 984 277 478`
+- **Acceso Directo**: [Chatear con el Asistente en WhatsApp](https://wa.me/51984277478?text=Hola!%20Quiero%20probar%20el%20bot%20de%20IA)
+
 ## Características
 
 - 🔐 **Gestión de Sesiones**: Guarda de forma persistente tus credenciales y sesión de WhatsApp en la carpeta local `.wsp_session`.
